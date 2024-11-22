@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sidebar {
+    width: 200px;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar .video-item {
+    margin-bottom: 20px;
+}
+
+.main-content {
+    flex: 1;
+    padding: 10px;
+}
+
+.video-player iframe {
+    width: 100%;
+}
+
+.reactions-section {
+    margin-top: 20px;
+}
+
+.reaction {
+    margin-bottom: 15px;
+}

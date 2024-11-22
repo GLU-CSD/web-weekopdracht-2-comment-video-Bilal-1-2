@@ -1,70 +1,26 @@
 <?php
+include("config.php");
+
 class Reactions
 {
-    static function setReaction($postArray){
+    // Save a reaction to the database
+    static function setReaction($name, $email, $message)
+    {
         global $con;
-        $array = [];
-        if (!empty($postArray)) {
 
-            if (isset($postArray['name']) && $postArray['name'] != '') {
-                $name = stripslashes(trim($postArray['name']));
-            }else{
-                $array['error'][] = "Name not set in array";
-            }
-            if (isset($postArray['email']) && filter_var($postArray['email'], FILTER_VALIDATE_EMAIL)) {
-                $email = stripslashes(trim($postArray['email']));
-            }else{
-                $array['error'][] = "Invalid email format";
-            }
+        $query = $con->prepare("INSERT INTO reactions (name, email, message) VALUES (?, ?, ?)");
+        $query->bind_param("sss", $name, $email, $message);
 
-            if (isset($postArray['message']) && $postArray['message'] != '') {
-                $message = stripslashes(trim($postArray['message']));
-            }else{
-                $array['error'][] = "Message not set in array";
-            }
-
-            if (empty($array['error'])) {
-
-                $srqry = $con->prepare("INSERT INTO reactions (name,email,message) VALUES (?,?,?);");
-                if ($srqry === false) {
-                    prettyDump( mysqli_error($con) );
-                }
-                
-                $srqry->bind_param('sss',$name,$email,$message);
-                if ($srqry->execute() === false) {
-                    prettyDump( mysqli_error($con) );
-                }else{
-                    $array['succes'] = "Reaction save succesfully";
-                }
-            
-                $srqry->close();
-            }
-
-            return $array;
-        }
+        return $query->execute();
     }
-    
-    static function getReactions(){
+
+    // Fetch all reactions from the database
+    static function getReactions()
+    {
         global $con;
-        $array = [];
-        $grqry = $con->prepare("SELECT id,name,email FROM reactions;");
-        if($grqry === false) {
-            prettyDump( mysqli_error($con) );
-        } else{
-            $grqry->bind_result($id,$name,$email);
-            if($grqry->execute()){
-                $grqry->store_result();
-                while($grqry->fetch()){
-                    $array[] = [
-                        'id' => $id,
-                        'name' => $name,
-                        'email'=> $email
-                    ];
-                }
-            }
-            $grqry->close();
-        }
-        return $array;
+
+        $result = $con->query("SELECT name, email, message FROM reactions ORDER BY id DESC");
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
-
+?>
